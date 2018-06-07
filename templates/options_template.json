@@ -1,0 +1,52 @@
+{
+  "parameters": {
+    "timestep": "day"
+  },
+  "geometry": {
+    "cellsize_x": 0.0083333,
+    "cellsize_y": 0.0083333,
+    "cellsize_z": 2
+  },
+  "resampling": {
+    "dem": "average",
+    "hand": "nearest"
+  },
+  "initial": {
+    "root_depth": "none",
+    "wl": "none"
+  },
+  "model_specific": {
+    "output_geometry": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              17.9296875,
+              -12.554563528593656
+            ]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              28.125,
+              -0.3515602939922709
+            ]
+          }
+        }
+      ]
+    },
+    "output_pars": [
+      "Q",
+      "qloc",
+      "sm"
+      ]
+  }
+} 
