@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-"""Console script for hydro_model_builder."""
+"""Console script for model_builder."""
 import sys
 import click
 import logging
 
-from . import model_generator
+from hydro_model_builder import model_generator
 
 logger = logging.getLogger(__name__)
 

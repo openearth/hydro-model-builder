@@ -18,8 +18,8 @@ class ModelGenerator:
         pass
 
 
-from . import model_generator_imod
-from . import model_generator_wflow
+from hydro_model_builder import model_generator_imod
+from hydro_model_builder import model_generator_wflow
 
 generators = [
     model_generator_imod.ModelGeneratorImod,

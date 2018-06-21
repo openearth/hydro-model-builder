@@ -1,4 +1,4 @@
-from . import model_generator
+from hydro_model_builder import model_generator
 
 
 class ModelGeneratorImod(model_generator.ModelGenerator):
