@@ -10,4 +10,5 @@ class ModelGeneratorWflow(model_generator.ModelGenerator):
         return 'WFlow'
 
     def generate_model(self, options):
-        super(ModelGeneratorWflow, self).generate_model(options)
+        # TODO: implement logic, options will be an instance of ModelGeneratorsOptions class
+        pass

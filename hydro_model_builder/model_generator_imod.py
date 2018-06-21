@@ -10,4 +10,6 @@ class ModelGeneratorImod(model_generator.ModelGenerator):
         return "iMod"
 
     def generate_model(self, options):
-        super(ModelGeneratorImod, self).generate_model(options)
+        # TODO: implement logic, options will be an instance of ModelGeneratorsOptions class
+
+        pass
