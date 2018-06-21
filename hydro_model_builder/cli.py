@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 @click.group()
-def cli():
-    pass
-
+def main():
+    return 0
 
 @click.command(name='generate-model')
-@click.option('-t', '--template', required=True)
-@click.option('-o', '--options-file', required=True)
-@click.option('-r', '--results-dir', required=True)
+@click.option('-t', '--template', required=True, help='Model template iMOD/wflow')
+@click.option('-o', '--options-file', required=True, help='Options file in YAML format')
+@click.option('-r', '--results-dir', required=True, help='Result directory')
+
 def generate_model(template, options_file, results_dir):
     print(template)
     print(options_file)
@@ -24,7 +24,7 @@ def generate_model(template, options_file, results_dir):
     click.echo('Generate model for a given region')
 
 
-cli.add_command(generate_model)
+main.add_command(generate_model)
 
 
 # @click.command(name='upload-data')
@@ -34,9 +34,6 @@ cli.add_command(generate_model)
 # cli.add_command(upload)
 
 
-def main():
-    cli()
-    return 0
 
 
 if __name__ == "__main__":
