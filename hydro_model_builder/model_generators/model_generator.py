@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
-import json
+import yaml
 import geojson
 
 class ModelGenerator(object):
-    def __init__(self, region_fn, options_fn):
-        self.region_fn = region_fn
-        self.options_fn = options_fn
+    def __init__(self, configfile):
+        self.configfile = configfile
 
     def parse_config(self):
-        self.options = json.loads(self.option_fn)
-
-    def parse_location(self):
-        self.location = geojson.loads(self.region_fn)
-
-    def __init__(self, ):
-        pass
+        with open(self.configfile) as f:
+            d = yaml.safe_load(f)
+        self.config = d
