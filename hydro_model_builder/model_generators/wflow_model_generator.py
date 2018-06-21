@@ -8,19 +8,15 @@ import geojson
 import numpy as np
 import rasterio
 import requests
-from shapely.ops import unary_union
 import shapely.geometry as sg
 from pyproj import Geod
 from rasterio import warp
+from shapely.ops import unary_union
 
-import pcraster as pcr
-import wflow.create_grid as cg
-import wflow.static_maps as sm
-import wflow.wflowtools_lib as wt
-from wflow import ogr2ogr
 import hydroengine
-
-from model_generator import *
+import pcraster as pcr
+from model_generator import ModelGenerator
+from wflow import create_grid, ogr2ogr, static_maps, wflowtools_lib
 
 
 class WflowModelGenerator(ModelGenerator):
@@ -115,10 +111,16 @@ def build_model(
     download_catchments(
         region, path_catchment, geojson_path, region_filter=region_filter
     )
-    cg_extent = path_catchment
+    create_grid_extent = path_catchment
 
-    cg.main(
-        path_log, dir_mask, cg_extent, projection, cellsize, locationid=name, snap=True
+    create_grid.main(
+        path_log,
+        dir_mask,
+        create_grid_extent,
+        projection,
+        cellsize,
+        locationid=name,
+        snap=True,
     )
     mask_tif = os.path.join(dir_mask, "mask.tif")
 
@@ -131,7 +133,6 @@ def build_model(
     path_inifile = os.path.join(case, "data/staticmaps.ini")
     path_dem_in = os.path.join(case, "data/dem/dem.tif")
     dir_lai = os.path.join(case, "data/parameters/clim")
-
 
     other_maps = {
         "sbm": [
@@ -196,7 +197,7 @@ def build_model(
             path_in = os.path.join(path_staticmaps_global, param + ".tif")
 
             # warp the local staticmaps onto model grid
-            wt.warp_like(
+            wflowtools_lib.warp_like(
                 path_in,
                 path,
                 mask_tif,
@@ -236,7 +237,7 @@ def build_model(
     # are found, then it will just be the pit of the ldd
     outlets = outlets_coords(path_catchment, river_data_path)
 
-    sm.main(
+    static_maps.main(
         dir_mask,
         dir_dest,
         path_inifile,
