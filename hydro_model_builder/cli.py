@@ -7,9 +7,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @click.group()
 def cli():
     pass
+
 
 @click.command(name='generate-model')
 @click.option('-t', '--template', required=True)
@@ -21,7 +23,9 @@ def generate_model(template, options_file, results_dir):
     print(results_dir)
     click.echo('Generate model for a given region')
 
+
 cli.add_command(generate_model)
+
 
 # @click.command(name='upload-data')
 # @click.option('-o', '--options', required=True)
@@ -33,6 +37,7 @@ cli.add_command(generate_model)
 def main():
     cli()
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover
