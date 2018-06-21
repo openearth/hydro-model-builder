@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+
 def get_names():
     return [g().get_name() for g in generators]
 
