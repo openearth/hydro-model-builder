@@ -2,7 +2,7 @@
 import json
 import geojson
 
-class model_generator(object):
+class ModelGenerator(object):
     def __init__(self, region_fn, options_fn):
         self.region_fn = region_fn
         self.options_fn = options_fn
@@ -14,3 +14,4 @@ class model_generator(object):
         self.location = geojson.loads(self.region_fn)
 
     def __init__(self, ):
+        pass
