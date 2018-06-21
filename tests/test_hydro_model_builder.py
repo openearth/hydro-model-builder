@@ -5,10 +5,7 @@
 
 import pytest
 
-from click.testing import CliRunner
-
 from hydro_model_builder import hydro_model_builder
-from hydro_model_builder import cli
 
 
 @pytest.fixture
@@ -27,12 +24,3 @@ def test_content(response):
     # assert 'GitHub' in BeautifulSoup(response.content).title.string
 
 
-def test_command_line_interface():
-    """Test the CLI."""
-    runner = CliRunner()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
-    assert 'hydro_model_builder.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
-    assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
