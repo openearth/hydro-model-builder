@@ -17,7 +17,7 @@ class ModelBuilder(object):
     """
     generators = [
         model_generator_imod.ModelGeneratorImod,
-        model_generator_wflow.ModelGeneratorWflow
+        # model_generator_wflow.ModelGeneratorWflow
     ]
 
     def __init__(self):
