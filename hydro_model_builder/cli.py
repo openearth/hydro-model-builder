@@ -5,7 +5,7 @@ import sys
 import click
 import logging
 
-from hydro_model_builder import model_generator
+from hydro_model_builder.model_builder import ModelBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,9 @@ def main():
     return 0
 
 
-template_names = [s.lower() for s in model_generator.get_names()]
+builder = ModelBuilder()
+
+template_names = [s.lower() for s in builder.get_generator_names()]
 
 
 @click.command(name='generate-model')
