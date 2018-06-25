@@ -13,14 +13,18 @@ from pyproj import Geod
 from rasterio import warp
 from shapely.ops import unary_union
 
+# import pcraster as pcr
+# from wflow import create_grid, ogr2ogr, static_maps, wflowtools_lib
+
 import hydroengine
-import pcraster as pcr
-from model_generator import ModelGenerator
-from wflow import create_grid, ogr2ogr, static_maps, wflowtools_lib
+
+from hydro_model_builder.model_generator import ModelGenerator
 
 
-class WflowModelGenerator(ModelGenerator):
+class ModelGeneratorWflow(ModelGenerator):
     def __init__(self):
+        super(ModelGeneratorWflow, self).__init__()
+
         """
         Add a template path to a model object
 
@@ -31,12 +35,15 @@ class WflowModelGenerator(ModelGenerator):
         # TODO Retrieve template config.ini for an options specified one
         self.template_config = os.path.join(self.template_path, "config.ini")
 
-    def generate_model_files(self):
+    def generate_model(self, options):
         """
         Convert all files into a model
+        TODO: implement logic, options will be an instance of ModelGeneratorsOptions class
 
         :return:
         """
+        #
+        pass
 
     def generate_config_files(self):
         """
@@ -45,6 +52,8 @@ class WflowModelGenerator(ModelGenerator):
         :return:
         """
 
+    def get_name(self):
+        return 'WFlow'
 
 SERVER_URL = "http://hydro-engine.appspot.com"
 

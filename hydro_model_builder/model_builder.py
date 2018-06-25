@@ -6,10 +6,15 @@
 
 import yaml
 
-from hydro_model_builder import model_generator_imod
-from hydro_model_builder import model_generator_wflow
+from hydro_model_builder.to_be_moved import model_generator_wflow, \
+    model_generator_imod
+
 
 class ModelBuilder(object):
+    """
+    TODO: remove direct references to generators, instantiate
+    ModelGeneratorProxy instead
+    """
     generators = [
         model_generator_imod.ModelGeneratorImod,
         model_generator_wflow.ModelGeneratorWflow

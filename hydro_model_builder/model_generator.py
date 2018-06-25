@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+
 class ModelGenerator:
     def __init__(self):
         pass
