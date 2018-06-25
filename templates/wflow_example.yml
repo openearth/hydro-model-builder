@@ -1,0 +1,42 @@
+---
+# Desired model cell size in decimal degrees
+cellsize: 0.01
+# Name of the WFlow model concept
+model: sbm # sbm|hbv|w3ra
+# Model time step in ISO 8601 duration, such as P1D for 1 day or PT1H for 1 hour
+timestep: PT1H # P1D|PT1H
+case:
+    # Name of the WFlow case.
+    name: ~ # optional
+    # Name of the template WFlow case
+    template: ~ # optional
+    # Path where both the template and created case reside
+    path: .
+
+# Indicating whether the WFlow case is part of a Delft-FEWS setup
+fews:
+    # Path to the Delft-FEWS config directory
+    config-path: ~
+
+# model specific data sources
+data:
+    dtm:
+        source: hydro-engine # hydro-engine|local
+        # the path can be either a file path for a local source,
+        # or the id of a dataset on the hydro-engine
+        path: ~
+        # algorithm used to resample the dataset from source cell size to model cell size
+        resample: median
+    river:
+        source: local # hydro-engine|local
+        # the path can be either a file path for a local source,
+        # or the id of a dataset on the hydro-engine
+        path: c:/tmp/river.geojson
+
+
+# Tell hydro-engine which model area to pick, by default this
+# is everything upstream of the provided geometry, but it is also
+# possible to get only the current catchment (catchments-intersection),
+# or just exactly the provided geometry (region), like your own
+# catchment polygon.
+region-filter: catchments-upstream
