@@ -1,12 +1,15 @@
-# -*- coding: utf-8 -*-
-import yaml
-import geojson
+from abc import abstractmethod
 
-class ModelGenerator(object):
-    def __init__(self, configfile):
-        self.configfile = configfile
+class ModelGenerator:
+    def __init__(self):
+        pass
 
-    def parse_config(self):
-        with open(self.configfile) as f:
-            d = yaml.safe_load(f)
-        self.config = d
+    @abstractmethod
+    def get_name(self):
+        pass
+
+    @abstractmethod
+    def generate_model(self, options):
+        pass
+
+

@@ -35,7 +35,7 @@ setup(
     description="Python package for the generation of water-related models",
     entry_points={
         'console_scripts': [
-            'hydro_model_builder=hydro_model_builder.cli:main',
+            'modelbuilder=hydro_model_builder.cli:main',
         ],
     },
     install_requires=requirements,

@@ -111,7 +111,7 @@ Tips
 
 To run a subset of tests::
 
-$ py.test tests.test_hydro_model_builder
+$ py.test tests.test_model_builder
 
 
 Deploying

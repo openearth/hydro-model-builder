@@ -5,7 +5,7 @@
 
 import pytest
 
-from hydro_model_builder import hydro_model_builder
+from hydro_model_builder import model_builder
 
 
 @pytest.fixture
