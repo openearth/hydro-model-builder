@@ -1,8 +1,9 @@
 ---
+model: wflow
 # Desired model cell size in decimal degrees
 cellsize: 0.01
 # Name of the WFlow model concept
-model: sbm # sbm|hbv|w3ra
+concept: sbm # sbm|hbv|w3ra
 # Model time step in ISO 8601 duration, such as P1D for 1 day or PT1H for 1 hour
 timestep: PT1H # P1D|PT1H
 case:

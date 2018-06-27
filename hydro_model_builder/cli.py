@@ -20,19 +20,13 @@ builder = ModelBuilder()
 template_names = [s.lower() for s in builder.get_generator_names()]
 
 
-@click.command(name='generate-model')
-@click.option('-t', '--template', required=True,
-              help='Model template, one of: ' +
-                   ' | '.join(template_names))
-@click.option('-o', '--options-file', required=True,
-              help='Options file in YAML format')
-@click.option('-r', '--results-dir', required=True,
-              help='Result directory')
-def generate_model(template, options_file, results_dir):
-    print(template)
+@click.command(name="generate-model")
+@click.option("-o", "--options-file", required=True, help="Options file in YAML format")
+@click.option("-r", "--results-dir", required=True, help="Result directory")
+def generate_model(options_file, results_dir):
     print(options_file)
     print(results_dir)
-    click.echo('Generate model for a given region')
+    click.echo("Generate model for a given region")
 
 
 main.add_command(generate_model)
@@ -45,4 +39,6 @@ main.add_command(generate_model)
 
 
 if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
+    # use sys.argv[1:] to allow using PyCharm debugger
+    # https://github.com/pallets/click/issues/536
+    main(sys.argv[1:])  # pragma: no cover
