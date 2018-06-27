@@ -2,18 +2,18 @@
 
 """Main module."""
 
-# import model_generators as mg
-
 import yaml
+from hydro_model_generator_wflow import ModelGeneratorWflow
 
 class ModelBuilder(object):
     """
     TODO: remove direct references to generators, instantiate
     ModelGeneratorProxy instead
     """
+
     generators = [
-        # model_generator_imod.ModelGeneratorImod,
-        # model_generator_wflow.ModelGeneratorWflow
+        # ModelGeneratorImod,
+        ModelGeneratorWflow
     ]
 
     def __init__(self):
@@ -21,7 +21,7 @@ class ModelBuilder(object):
 
     def parse_config(self, configfile):
         with open(configfile) as f:
-            return yaml.safe_load(f)
+            return list(yaml.safe_load_all(f))
 
     def get_generator_names(self):
         return [g().get_name() for g in self.generators]

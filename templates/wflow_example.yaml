@@ -1,5 +1,11 @@
+%YAML 1.2
 ---
 model: wflow
+version: 1.0
+input: TODO copy data from below
+region: TODO either inline geojson or path?
+...
+---
 # Desired model cell size in decimal degrees
 cellsize: 0.01
 # Name of the WFlow model concept

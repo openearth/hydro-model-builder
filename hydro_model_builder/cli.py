@@ -24,9 +24,13 @@ template_names = [s.lower() for s in builder.get_generator_names()]
 @click.option("-o", "--options-file", required=True, help="Options file in YAML format")
 @click.option("-r", "--results-dir", required=True, help="Result directory")
 def generate_model(options_file, results_dir):
-    print(options_file)
-    print(results_dir)
-    click.echo("Generate model for a given region")
+    # two YAML docs are expected in this file, one generic and one model specific
+    dicts = builder.parse_config(options_file)
+    genopt, modopt = dicts
+    # TODO validate config
+    msg = f"Going to create a '{genopt['model']}'/'{modopt['concept']}' model, it will be placed in '{results_dir}'"
+    click.echo(msg)
+    click.echo(builder.get_generator_names())
 
 
 main.add_command(generate_model)
