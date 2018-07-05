@@ -2,8 +2,100 @@
 ---
 model: wflow
 version: 1.0
-input: TODO copy data from below
-region: TODO either inline geojson or path?
+hydro-engine:
+    defaults:
+        type: raster
+        source: earth-engine
+        resample: median
+        crs: EPSG:4326
+        cell_size: 1000.0
+        region_filter: catchments-upstream
+        catchment_level: 6
+    datasets:
+        -
+            variable: dem
+            path: hydro-engine/dem.tif
+        -
+            # start of staticmaps
+            variable: FirstZoneCapacity
+            path: hydro-engine/SoilThickness.tif
+            cell_size: 500.0
+        -
+            variable: FirstZoneKsatVer
+            path: hydro-engine/KsatVer.tif
+        -
+            variable: FirstZoneMinCapacity
+            path: hydro-engine/SoilMinThickness.tif
+        -
+            variable: InfiltCapSoil
+            path: hydro-engine/InfiltCapSoil.tif
+        -
+            variable: M
+            path: hydro-engine/M.tif
+        -
+            variable: PathFrac
+            path: hydro-engine/PathFrac.tif
+        -
+            variable: WaterFrac
+            path: hydro-engine/WaterFrac.tif
+        -
+            variable: thetaS
+            path: hydro-engine/thetaS.tif
+        -
+            variable: soil_type
+            path: hydro-engine/wflow_soil.tif
+        -
+            variable: landuse
+            path: hydro-engine/wflow_landuse.tif
+        -
+            variable: LAI01
+            path: hydro-engine/LAI00000.001.tif
+        -
+            variable: LAI02
+            path: hydro-engine/LAI00000.002.tif
+        -
+            variable: LAI03
+            path: hydro-engine/LAI00000.003.tif
+        -
+            variable: LAI04
+            path: hydro-engine/LAI00000.004.tif
+        -
+            variable: LAI05
+            path: hydro-engine/LAI00000.005.tif
+        -
+            variable: LAI06
+            path: hydro-engine/LAI00000.006.tif
+        -
+            variable: LAI07
+            path: hydro-engine/LAI00000.007.tif
+        -
+            variable: LAI08
+            path: hydro-engine/LAI00000.008.tif
+        -
+            variable: LAI09
+            path: hydro-engine/LAI00000.009.tif
+        -
+            variable: LAI10
+            path: hydro-engine/LAI00000.010.tif
+        -
+            variable: LAI11
+            path: hydro-engine/LAI00000.011.tif
+        -
+            variable: LAI12
+            path: hydro-engine/LAI00000.012.tif
+        -
+            variable: river
+            source: local # earth-engine|local
+            # the path can be either a file path for a local source,
+            # or the id of a dataset on the hydro-engine
+            path: hydro-engine/river.geojson
+            crs: EPSG:4326
+            cell_size: 1000.0
+            region_filter: catchments-upstream
+            catchment_level: 6
+# region should support either a path or an inline geojson
+region: {"type":"Point","coordinates":[-347.79,45.014]}
+
 ...
 ---
 # Desired model cell size in decimal degrees
@@ -24,26 +116,3 @@ case:
 fews:
     # Path to the Delft-FEWS config directory
     config-path: ~
-
-# model specific data sources
-data:
-    dtm:
-        source: hydro-engine # hydro-engine|local
-        # the path can be either a file path for a local source,
-        # or the id of a dataset on the hydro-engine
-        path: ~
-        # algorithm used to resample the dataset from source cell size to model cell size
-        resample: median
-    river:
-        source: local # hydro-engine|local
-        # the path can be either a file path for a local source,
-        # or the id of a dataset on the hydro-engine
-        path: c:/tmp/river.geojson
-
-
-# Tell hydro-engine which model area to pick, by default this
-# is everything upstream of the provided geometry, but it is also
-# possible to get only the current catchment (catchments-intersection),
-# or just exactly the provided geometry (region), like your own
-# catchment polygon.
-region-filter: catchments-upstream
