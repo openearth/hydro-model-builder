@@ -49,6 +49,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/gena/hydro_model_builder',
-    version='0.1.0',
+    version='0.0.7',
     zip_safe=False,
 )
