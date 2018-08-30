@@ -8,6 +8,7 @@ from pathlib import Path
 
 import hydroengine
 from hydro_model_builder.model_builder import ModelBuilder
+from hydro_model_generator_wflow import ModelGeneratorWflow
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,8 @@ def main():
 builder = ModelBuilder()
 
 template_names = [s.lower() for s in builder.get_generator_names()]
-
+print("template_names:")
+print(template_names)
 
 @click.command(name="generate-model")
 @click.option("-o", "--options-file", required=True, help="Options file in YAML format")
@@ -33,7 +35,8 @@ def generate_model(options_file, results_dir):
     # TODO fill in all defaults (for now we should supply all)
     msg = f"Going to create a '{genopt['model']}'/'{modopt['concept']}' model, it will be placed in '{results_dir}'"
     general_options(genopt)
-    click.echo(msg)
+    genwf = ModelGeneratorWflow()
+    genwf.generate_model(modopt)
     click.echo(builder.get_generator_names())
 
 
