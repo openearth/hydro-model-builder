@@ -4,14 +4,18 @@ model: wflow
 version: 1.0
 hydro-engine:
     defaults:
-        type: raster
+        function: get-raster
         source: earth-engine
         resample: median
-        crs: EPSG:4326
+        crs: UTM
         cell_size: 1000.0
         region_filter: catchments-upstream
         catchment_level: 6
     datasets:
+        -
+            function: get-catchments
+            variable: catchments
+            path: hydro-engine/catchments.geojson
         -
             variable: dem
             path: hydro-engine/dem.tif
@@ -89,17 +93,31 @@ hydro-engine:
             # the path can be either a file path for a local source,
             # or the id of a dataset on the hydro-engine
             path: hydro-engine/river.geojson
-            crs: EPSG:4326
+            crs: UTM
             cell_size: 1000.0
             region_filter: catchments-upstream
             catchment_level: 6
+local:
+    defaults:
+        function: get-raster
+        source: earth-engine
+        resample: median
+        crs: UTM
+        cell_size: 1000.0
+        region_filter: catchments-upstream
+        catchment_level: 6
+    datasets:
+        -
+            variable: notyetimplt
+            path: hydro-engine/dem.tif
 # region should support either a path or an inline geojson
+# region: koblenz.geojson
 region: {"type":"Point","coordinates":[-347.79,45.014]}
 
 ...
 ---
-# Desired model cell size in decimal degrees
-cellsize: 0.01
+# Desired model cell size in meters
+cellsize: 1000.0
 # Name of the WFlow model concept
 concept: sbm # sbm|hbv|w3ra
 # Model time step in ISO 8601 duration, such as P1D for 1 day or PT1H for 1 hour
