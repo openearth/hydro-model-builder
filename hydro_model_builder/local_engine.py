@@ -1,26 +1,16 @@
 from affine import Affine
 from functools import partial
-import json
 import numpy as np
 from pathlib import Path
 import pyproj
-import os
 import rasterio
-import shapely.ops
+import rasterio.warp
 import shapely.geometry as sg
-import shutil
+import shapely.ops
 import subprocess
-import xarray as xr
 
 
-def region_features(region_path):
-    with open(region_path) as f:
-        js = json.load(f)
-    features = [sg.shape(f["geometry"]) for f in js["features"]]
-    return sg.MultiPolygon(features)
-
-
-def reproject(shapes, src_proj, dst_proj):
+def reproject_features(shapes, src_proj, dst_proj):
     project = partial(pyproj.transform, src_proj, dst_proj)
     return shapely.ops.transform(project, shapes)
 
@@ -36,51 +26,72 @@ def round_extent(extent, cellsize):
     return xmin, ymin, xmax, ymax
 
 
-def get_raster(src_path, dst_transform, nrow, ncol, dst_crs, dst_path):
-    with rasterio.open(src_path) as src:
+def spatial_meta(region, crs, cellsize):
+    src_proj = pyproj.Proj(init="EPSG:4326")
+    dst_proj = pyproj.Proj(init=f"{crs}")
+    reprojected = reproject_features(sg.shape(region), src_proj, dst_proj)
+
+    bounds = round_extent(reprojected.bounds, cellsize)
+    xmin, ymin, xmax, ymax = bounds
+    nrow = int((ymax - ymin) / cellsize) - 1
+    ncol = int((xmax - xmin) / cellsize) - 1
+
+    x = np.array([xmin, xmin, xmax, xmax])
+    y = np.array([ymin, ymax, ymin, ymax])
+    lon, lat = pyproj.transform(dst_proj, src_proj, x, y)
+    latlon_bounds = min(lon), min(lat), max(lon), max(lat)
+
+    raster_meta = {
+        "transform": Affine(cellsize, 0.0, xmin, 0.0, -cellsize, ymax),
+        "crs": crs,  ## crs string, e.g. "EPSG:4326"
+        "nrow": nrow,
+        "ncol": ncol,
+    }
+
+    features_meta = {
+        "crs": crs,  # crs string, e.g. "EPSG:4326"
+        "bounds": latlon_bounds,
+    }
+
+    d = {"raster": raster_meta, "features": features_meta}
+
+    return d
+
+
+def get_raster(source, path, crs, transform, nrow, ncol):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with rasterio.open(source) as src:
         kwargs = src.meta.copy()
         kwargs.update(
-            {"crs": dst_crs, "transform": dst_transform, "width": ncol, "heigth": nrow}
+            {"crs": crs, "transform": transform, "width": ncol, "height": nrow}
         )
 
-        with rasterio.open(dst_path, "w", **kwargs) as dst:
+        print(f"Clipping and reprojecting {source}")
+        with rasterio.open(path, "w", **kwargs) as dst:
             for i in range(1, src.count + 1):
                 rasterio.warp.reproject(
                     source=rasterio.band(src, i),
                     destination=rasterio.band(dst, i),
                     src_transform=src.transform,
                     src_crs=src.crs,
-                    dst_transform=dst_transform,
-                    dst_crs=dst_crs,
+                    dst_transform=transform,
+                    dst_crs=crs,
                     resampling=rasterio.warp.Resampling.nearest,
                 )
 
 
 def get_features(source, path, crs, bounds):
-    src_proj = pyproj.Proj(init="EPSG:4326")
-    dst_proj = pyproj.Proj(f"init={crs}")
-    xmin, ymin, xmax, ymax = bounds
-    x = np.array([xmin, xmin, xmax, xmax])
-    y = np.array([ymin, ymax, ymin, ymax])
-    # project the other way around to get all data within the reprojected box
-    lon, lat = pyproj.transform(dst_proj, src_proj)
-    # clip
-    # ogr2ogr -f "ESRI Shapefile" output.shp input.shp -clipsrc <x_min> <y_min> <x_max> <y_max>
-    subprocess.call(f"ogr2ogr -f ESRI Shapefile {path} {source} -clipsrc {min(lon)} {max(lon)} {min(lat)} {max{lat}}")
-    # reproject
-    # this won't work, we'll have to produce a temporary file
-    # ogr2ogr output.shp -t_srs "EPSG:4326" input.shp
-    subprocess.call(f'ogr2ogr {path} -t_srs "{crs}" {source}')
     # maybe (re)creating a spatial index is a good idea?
     # ogrinfo example.shp -sql "CREATE SPATIAL INDEX ON example"
-
-
-def get_data(region, path, source, cellsize, crs):
-    src_proj = pyproj.Proj(init="EPSG:4326")
-    dst_proj = pyproj.Proj(f"init={crs}")
-    reprojected_region = reproject(region, src_proj, dst_proj)
-    xmin, ymin, xmax, ymax = round_extent(reprojected_region.bounds, cellsize)
-    nrow = int((ymax - ymin) / cellsize) - 1
-    ncol = int((xmax - xmin) / cellsize) - 1
-    dst_transform = Affine(cellsize, 0.0, xmin, 0.0, -cellsize, ymax)
-    reproject_raster(source, dst_transform, nrow, ncol, crs, path)
+    xmin, ymin, xmax, ymax = bounds
+    p = Path(path)
+    p = Path(p.parent, "tmp", p.name)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = str(p)
+    # two steps is better than a combined one:
+    # using -t_srs and -clipdst fails for a number of datasets, tries to reproject all features?
+    print(f"Clipping and reprojecting {source}")
+    subprocess.call(
+        f'ogr2ogr -f "ESRI Shapefile" {temp_path} {source} -clipdst {xmin} {ymin} {xmax} {ymax}'
+    )
+    subprocess.call(f'ogr2ogr -f "ESRI Shapefile" {path} {temp_path} -t_srs {crs}')
