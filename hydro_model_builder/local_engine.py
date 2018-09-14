@@ -7,8 +7,8 @@ import rasterio
 import rasterio.warp
 import shapely.geometry as sg
 import shapely.ops
-import subprocess
-
+import shlex
+from subprocess import Popen, PIPE
 
 def reproject_features(shapes, src_proj, dst_proj):
     project = partial(pyproj.transform, src_proj, dst_proj)
@@ -80,18 +80,25 @@ def get_raster(source, path, crs, transform, nrow, ncol):
                 )
 
 
+def get_exitcode_stdout_stderr(cmd):
+    """
+    Execute the external command and get its exitcode, stdout and stderr.
+    """
+    # from https://stackoverflow.com/questions/1996518/retrieving-the-output-of-subprocess-call
+    args = shlex.split(cmd)
+    proc = Popen(args, stdout=PIPE, stderr=PIPE)
+    out, err = proc.communicate()
+    exitcode = proc.returncode
+    return exitcode, out, err
+
+
 def get_features(source, path, crs, bounds):
     # maybe (re)creating a spatial index is a good idea?
     # ogrinfo example.shp -sql "CREATE SPATIAL INDEX ON example"
     xmin, ymin, xmax, ymax = bounds
-    p = Path(path)
-    p = Path(p.parent, "tmp", p.name)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = str(p)
-    # two steps is better than a combined one:
-    # using -t_srs and -clipdst fails for a number of datasets, tries to reproject all features?
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     print(f"Clipping and reprojecting {source}")
-    subprocess.call(
-        f'ogr2ogr -f "ESRI Shapefile" {temp_path} {source} -clipdst {xmin} {ymin} {xmax} {ymax}'
-    )
-    subprocess.call(f'ogr2ogr -f "ESRI Shapefile" {path} {temp_path} -t_srs {crs}')
+    cmd = f'ogr2ogr -f "ESRI Shapefile" -clipsrc {xmin} {ymin} {xmax} {ymax} {path} {source} -t_srs {crs}'
+    exitcode, _, err = get_exitcode_stdout_stderr(cmd)
+    if exitcode != 0:
+        raise RuntimeError(f"ogr2ogr errored when clipping and reprojecting {source}. Error message: \n" + err.decode())
