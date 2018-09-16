@@ -10,6 +10,7 @@ import shapely.ops
 import shlex
 from subprocess import Popen, PIPE
 
+
 def reproject_features(shapes, src_proj, dst_proj):
     project = partial(pyproj.transform, src_proj, dst_proj)
     return shapely.ops.transform(project, shapes)
@@ -93,12 +94,21 @@ def get_exitcode_stdout_stderr(cmd):
 
 
 def get_features(source, path, crs, bounds):
+    # TODO: empty geometries create problems later on
+    # maybe also do: ogr2ogr -f "ESRI Shapefile" -dialect sqlite -sql "select * from input where geometry is not null" output.shp input.shp
     # maybe (re)creating a spatial index is a good idea?
     # ogrinfo example.shp -sql "CREATE SPATIAL INDEX ON example"
     xmin, ymin, xmax, ymax = bounds
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    print(f"Clipping and reprojecting {source}")
     cmd = f'ogr2ogr -f "ESRI Shapefile" -clipsrc {xmin} {ymin} {xmax} {ymax} {path} {source} -t_srs {crs}'
+    print(f'Clipping and reprojecting {source}')
     exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
-        raise RuntimeError(f"ogr2ogr errored when clipping and reprojecting {source}. Error message: \n" + err.decode())
+        raise RuntimeError(
+            f"An error occurred clipping and reprojecting {source}\n"
+            f"During execution of:\n"
+            f"{cmd}\n"
+            f"\n"
+            f"Error message:\n"
+            f"{err.decode()}"
+            )
