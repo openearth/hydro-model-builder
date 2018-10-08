@@ -9,7 +9,7 @@ from shapely import geometry as sg
 from hydro_model_builder import local_engine
 
 
-def parse_config(self, configfile):
+def parse_config(configfile):
     with open(configfile) as f:
         return list(yaml.safe_load_all(f))
 
@@ -27,15 +27,19 @@ def get_paths(general_options):
 
 
 def load_region(region):
-    if isinstance(region, dict):
-        out = sg.shape(region)
+    if isinstance(region, dict): 
+        pass
     else:
         with open(region) as f:
-            js = json.load(f)
-        assert (
-            len(js["features"]) == 1
-        ), "Region definition should contain only one feature."
-        out = sg.shape(js["features"][0]["geometry"])
+            region = json.load(f)
+    assert (
+        len(region["features"]) == 1
+    ), "Region definition should contain only one feature."
+    return region["features"][0]["geometry"]
+
+
+def shapely_region(js):
+    out = sg.shape(js)
     return out
 
 
@@ -62,7 +66,7 @@ def get_hydro_data(region, ds):
         # create directory
         Path(ds["path"]).parent.mkdir(parents=True, exist_ok=True)
         if ds["crs"].lower() == "utm":
-            ds["crs"] = f"EPSG:{utm_epsg(region)}"
+            ds["crs"] = f"EPSG:{utm_epsg(shapely_region(region))}"
         hydroengine.download_raster(
             region,
             ds["path"],
@@ -101,10 +105,7 @@ def get_local_data(meta, ds):
 
 def general_options(d):
     # get data from hydro-engine one by one
-    if isinstance(d["region"], dict):
-        pass  # so it should be inline JSON
-    else:  # it's a path to a JSON file
-        d["region"] = load_region(Path(d["region"]))
+    d["region"] = load_region(d["region"])
 
     if "hydro-engine" in d:
         defaults = d["hydro-engine"]["defaults"]
@@ -116,7 +117,7 @@ def general_options(d):
     if "local" in d:
         # metadata of destination is similar every time
         # so we can precompute it
-        region = d["region"]
+        region = shapely_region(d["region"])
         crs = d["local"]["defaults"]["crs"]
         if crs.lower() == "utm":
             crs = f"EPSG:{utm_epsg(region)}"
