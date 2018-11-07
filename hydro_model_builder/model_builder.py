@@ -9,25 +9,8 @@ from shapely import geometry as sg
 from hydro_model_builder import local_engine
 
 
-def parse_config(configfile):
-    with open(configfile) as f:
-        return list(yaml.safe_load_all(f))
-
-
-def get_paths(general_options):
-    # TODO: use schema to validate here?
-    d = {}
-    if "hydro-engine" in general_options:
-        for var in general_options["hydro-engine"]["datasets"]:
-            d[var["variable"]] = var["path"]
-    if "local" in general_options:
-        for var in general_options["local"]["datasets"]:
-            d[var["variable"]] = var["path"]
-    return d
-
-
 def load_region(region):
-    if isinstance(region, dict): 
+    if isinstance(region, dict):
         pass
     else:
         with open(region) as f:
@@ -36,6 +19,26 @@ def load_region(region):
         len(region["features"]) == 1
     ), "Region definition should contain only one feature."
     return region["features"][0]["geometry"]
+
+
+def parse_config(configfile):
+    # TODO: use schema to validate here
+    with open(configfile) as f:
+        genopt, modopt = list(yaml.safe_load_all(f))
+    # TODO: Do this using with "schema.Use()"
+    genopt["region"] = load_region(genopt["region"])
+    return genopt, modopt
+
+
+def get_paths(general_options):
+    d = {}
+    if "hydro-engine" in general_options:
+        for var in general_options["hydro-engine"]["datasets"]:
+            d[var["variable"]] = var["path"]
+    if "local" in general_options:
+        for var in general_options["local"]["datasets"]:
+            d[var["variable"]] = var["path"]
+    return d
 
 
 def shapely_region(js):
@@ -59,6 +62,14 @@ def utm_epsg(region):
         epsg = 32700 + UTMzone
 
     return epsg
+
+
+def download_features(region, source, path):
+    """Downloads feature collection to JSON file"""
+    # TODO remove in due time, when part of hydroengine
+    feature_collection = hydroengine.get_feature_collection(region, source)
+    with open(path, "w") as f:
+        json.dump(feature_collection, f)
 
 
 def get_hydro_data(region, ds):
@@ -89,6 +100,9 @@ def get_hydro_data(region, ds):
             ds["region_filter"],
             ds["catchment_level"],
         )
+    elif ds["function"] == "get-features":
+        print(ds["source"])
+        download_features(region, ds["source"], ds["path"])
     else:
         raise ValueError(f"Invalid function provided for {ds['variable']}.")
 
@@ -103,9 +117,12 @@ def get_local_data(meta, ds):
         raise ValueError(f"Invalid function for {ds['variable']}.")
 
 
-def general_options(d):
-    # get data from hydro-engine one by one
-    d["region"] = load_region(d["region"])
+def general_options(genopt):
+    """
+    Get data from hydro-engine or local source, one by one.
+    """
+    # Avoid side-effects
+    d = genopt.copy()
 
     if "hydro-engine" in d:
         defaults = d["hydro-engine"]["defaults"]
