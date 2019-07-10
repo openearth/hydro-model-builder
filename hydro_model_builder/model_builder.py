@@ -123,12 +123,12 @@ def get_local_data(meta, ds):
         raise ValueError(f"Invalid function for {ds['variable']}.")
 
 
-def general_options(genopt):
+def fetch_data(general_options):
     """
     Get data from hydro-engine or local source, one by one.
     """
     # Avoid side-effects
-    d = genopt.copy()
+    d = general_options.copy()
 
     if "hydro-engine" in d:
         defaults = d["hydro-engine"]["defaults"]
