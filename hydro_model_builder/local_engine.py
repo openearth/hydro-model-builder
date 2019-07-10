@@ -1,3 +1,9 @@
+"""
+Provides geospatial utilities for when we cannot rely on hydroengine.
+
+Does clipping and resampling.
+"""
+
 from affine import Affine
 from functools import partial
 import numpy as np
@@ -101,7 +107,7 @@ def get_features(source, path, crs, bounds):
     xmin, ymin, xmax, ymax = bounds
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     cmd = f'ogr2ogr -f "ESRI Shapefile" -clipsrc {xmin} {ymin} {xmax} {ymax} {path} {source} -t_srs {crs}'
-    print(f'Clipping and reprojecting {source}')
+    print(f"Clipping and reprojecting {source}")
     exitcode, _, err = get_exitcode_stdout_stderr(cmd)
     if exitcode != 0:
         raise RuntimeError(
@@ -111,4 +117,4 @@ def get_features(source, path, crs, bounds):
             f"\n"
             f"Error message:\n"
             f"{err.decode()}"
-            )
+        )
