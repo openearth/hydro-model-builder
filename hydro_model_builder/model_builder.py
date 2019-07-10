@@ -1,3 +1,9 @@
+"""
+General functionality required by both wflow and imodflow.
+
+Parses .yaml specification files, and provides utilities for downloading data.
+"""
+
 import json
 from pathlib import Path
 
