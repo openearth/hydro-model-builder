@@ -152,3 +152,7 @@ def fetch_data(general_options):
             ds = defaults.copy()
             ds.update(ds_override)
             get_local_data(meta, ds)
+
+    if "cloud-storage" in d:
+        # TODO
+        raise NotImplementedError
